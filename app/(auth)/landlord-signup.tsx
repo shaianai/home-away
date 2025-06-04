@@ -64,10 +64,10 @@ export default function LandlordSignUp() {
             id: data.user.id,
             last_name: lastName,
             first_name: firstName,
-            email,
-            number,
-            address,
-            fb_link,
+            email : email,
+            number: number,
+            address: address,
+            fb_link: fb_link,
             kindofuser: 'landlord',
           });
 
