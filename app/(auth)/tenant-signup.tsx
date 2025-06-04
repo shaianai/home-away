@@ -3,6 +3,7 @@ import { SafeAreaView, View, Text, TextInput, StyleSheet, Dimensions, TouchableO
 import { useRouter } from 'expo-router';
 import Icon from 'react-native-vector-icons/AntDesign';
 import { supabase } from '@/supabaseClient'; // Import Supabase client
+import * as Linking from 'expo-linking';
 
 const { width, height } = Dimensions.get('screen');
 
@@ -43,10 +44,17 @@ export default function TenantSignUp() {
     }
 
     try {
+
+      const redirectUrl = Linking.createURL('auth/callback');
+      console.log('Redirect URL for Supabase:', redirectUrl);
+
       // Sign up the user with email and password
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+        emailRedirectTo: 'http://localhost:3000/confirmed',
+      }
       });
 
       if (error) {
@@ -69,10 +77,11 @@ export default function TenantSignUp() {
           });
 
         if (profileError) {
-          console.error(profileError);
-          Alert.alert('Error', 'Failed to store user profile information.');
+          console.error('Profile Upsert Error:', profileError.message);
+          Alert.alert('Error', profileError.message);
           return;
         }
+
 
         Alert.alert('Success', 'Account created successfully!');
         // After successful signup, redirect to the login page

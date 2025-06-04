@@ -1,5 +1,5 @@
   import React, { useState } from 'react';
-  import { SafeAreaView, View, TouchableOpacity, Text, StyleSheet, TextInput, Image, Modal, Dimensions } from 'react-native';
+  import { SafeAreaView, View, TouchableOpacity, Text, StyleSheet, TextInput, Image, Modal, Dimensions, Alert } from 'react-native';
   import { useRouter } from 'expo-router';
   import Icon from 'react-native-vector-icons/AntDesign';
   import { supabase } from '@/supabaseClient';
@@ -35,6 +35,35 @@
         if (error || !data?.user) {
           throw new Error('Authentication failed. Please try again.');
         }
+
+          // ✅ Check if email is confirmed
+                try {
+          const { data: userData, error } = await supabase.auth.getUser();
+
+          if (error) {
+            console.error('Error fetching user:', error.message);
+            Alert.alert('Error', 'Unable to verify email confirmation status.');
+            return;
+          }
+
+          const confirmedAt = userData?.user?.email_confirmed_at;
+
+          if (!confirmedAt) {
+            Alert.alert(
+              'Email Not Confirmed',
+              'Please check your email and confirm your account before continuing.'
+            );
+            return;
+          }
+
+          // Email is confirmed, continue with the login logic here
+          console.log('Email confirmed on:', confirmedAt);
+
+        } catch (err) {
+          console.error('Unexpected error checking email confirmation:', err);
+          Alert.alert('Error', 'Something went wrong. Please try again later.');
+        }
+
     
         const { data: profileData, error: profileError } = await supabase
           .from('profiles')
